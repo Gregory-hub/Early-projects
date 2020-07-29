@@ -1,0 +1,65 @@
+from telebot import *
+import matplotlib.pyplot as plt
+
+bot = TeleBot(token = "959687516:AAGvzEN-ng0hs5Jpbw4W52kD8BaMAJwJDH4")
+
+@bot.message_handler(commands=['plot'])
+def send_plot(message):
+	print("Fun 'send_plot' is called")
+	bot.send_message(message.from_user.id, "Enter function of plot as a mathematitian-pythoner(like y = x**2 or y = 1/(x-3)")
+
+	@bot.message_handler(content_types=['text'])
+	def plot(message):
+		try:
+			print("Fun 'plot' is called")
+			fun = message.text		
+			fun = fun.replace("y = ", "")
+			fun = fun.replace("y=", "")
+			print("fun:", fun)
+
+			xs = [i/3 for i in range(-30, 31)]
+			i = 0
+			n = len(xs)
+			ys = []
+			while i < n:
+				x = xs[i]
+				try:
+					ys.append(eval(fun))
+				except:
+					xs.pop(i)
+					n = len(xs)
+					continue
+				n = len(xs)
+				i += 1							# Now we have xs and ys
+			print("plot:", xy, "\n")
+
+			plt.style.use('fivethirtyeight')
+
+			if -1 < fun.find('/') < fun.find('x'):
+				increases = True if xs[1] > xs[0] else False
+				print(increases)
+
+				if increases:
+					xs1, xs2 = xs[:ys.index(max(ys))+1], xs[ys.index(min(ys)):]
+					ys1, ys2 = ys[:ys.index(max(ys))+1], ys[ys.index(min(ys)):]
+				else:
+					xs1, xs2 = xs[:ys.index(min(ys))+1], xs[ys.index(max(ys)):]
+					ys1, ys2 = ys[:ys.index(min(ys))+1], ys[ys.index(max(ys)):]
+				
+				plt.plot(xs1, ys1, color='Blue')
+				plt.plot(xs2, ys2, color='Blue')
+			else:
+				plt.plot(xs, ys, color='red')
+			
+			plt.show()
+			bot.send_message(message.from_user.id, "OK")
+		except:
+			bot.send_message(message.from_user.id, "Not OK")
+
+
+@bot.message_handler(commands=['start'])
+def st(message):
+	bot.send_message(message.from_user.id, "You sent me the command 'start'")
+
+bot.polling()
+print("Bot has started\n")
